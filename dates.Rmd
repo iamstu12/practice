@@ -1,0 +1,231 @@
+---
+title: "Dates"
+author: "Stuart McColl"
+date: "22/02/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Libraries
+
+```{r, include=FALSE}
+
+library(lubridate)
+library(tidyverse)
+library(nycflights13)
+library(hms)
+library(stringr)
+
+```
+
+# Data
+
+```{r}
+
+flights <- flights
+
+
+```
+
+# View Data
+
+```{r}
+
+head(flights)
+
+```
+
+```{r}
+
+flights <- flights %>% 
+  separate(dep_time, into = c("hour", "minute"), sep = -2) %>% 
+  mutate(hour = as.integer(hour),
+         minute = as.integer(minute))
+
+flights
+
+```
+
+```{r}
+
+flights <- flights %>% 
+  mutate(date_time = make_datetime(year, month, day, hour, minute))
+
+flights
+
+```
+
+# Departure Date and Time
+
+```{r}
+
+flights <- flights %>% 
+  mutate(departure_date = date(date_time))
+
+flights
+
+```
+```{r}
+
+flights <- flights %>% 
+  mutate(departure_time = as_hms(date_time)) %>% 
+  select(-c(hour, minute))
+
+flights
+
+```
+
+# Scheduled Departure Time
+
+```{r}
+
+flights <- flights %>% 
+  separate(sched_dep_time, into = c("hour", "minute"), sep = -2) %>% 
+  mutate(hour = as.integer(hour),
+         minute = as.integer(minute))
+
+flights
+
+```
+
+```{r}
+
+flights <- flights %>% 
+  mutate(sched_dep_date = make_datetime(year, month, day, hour, minute))
+
+flights
+
+```
+
+```{r}
+
+flights <- flights %>% 
+  mutate(scheduled_departure_time = as_hms(sched_dep_date)) %>% 
+  select(-c(hour, minute, sched_dep_date, time_hour))
+
+flights
+
+```
+
+```{r}
+
+flights <- flights %>% 
+  mutate(departure_delay = departure_time - scheduled_departure_time) %>% 
+  select(-c(dep_delay, date_time))
+
+```
+
+# Arrival Time
+
+```{r}
+
+flights <- flights %>% 
+  separate(arr_time, into = c("hour", "minute"), sep = -2) %>% 
+  mutate(hour = as.integer(hour),
+         minute = as.integer(minute))
+
+flights
+
+```
+
+```{r}
+
+flights <- flights %>% 
+  mutate(date_time = make_datetime(year, month, day, hour, minute))
+
+flights
+
+```
+
+```{r}
+
+flights <- flights %>% 
+  mutate(arrival_time = as_hms(date_time)) %>% 
+  select(-c(hour, minute, date_time))
+
+flights
+
+```
+
+```{r}
+
+flights <- flights %>% 
+  separate(sched_arr_time, into = c("hour", "minute"), sep = -2) %>% 
+  mutate(hour = as.integer(hour),
+         minute = as.integer(minute))
+
+flights
+
+```
+
+```{r}
+
+flights <- flights %>% 
+  mutate(date_time = make_datetime(year, month, day, hour, minute))
+
+flights
+
+```
+
+```{r}
+
+flights <- flights %>% 
+  mutate(scheduled_arrival_time = as_hms(date_time)) %>% 
+  select(-c(hour, minute, date_time))
+
+flights
+
+```
+
+```{r}
+
+flights <- flights %>% 
+  mutate(arrival_delay = arrival_time - scheduled_arrival_time) %>% 
+  select(-arr_delay)
+
+flights
+
+```
+
+```{r}
+
+flights <- flights %>% 
+  mutate(flight_time = arrival_time - departure_time)
+
+flights
+
+```
+
+```{r}
+
+flights <- flights %>% 
+  select(-c(year, month, day, air_time)) %>% 
+  select(departure_date, flight, carrier, origin, dest, flight_time, departure_time, scheduled_departure_time, departure_delay, arrival_time, scheduled_arrival_time, arrival_delay)
+
+flights
+
+```
+
+```{r}
+
+flights <- flights %>% 
+  mutate(departure_delay = seconds_to_period(departure_delay),
+         arrival_delay = seconds_to_period(arrival_delay),
+         flight_time = seconds_to_period(flight_time))
+
+flights
+
+```
+
+
+
+
+
+
+
+
+
+
